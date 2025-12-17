@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Mempool Galaxy</title>
+<meta name="description" content="Visualize your Farcaster social circle as a blockchain node network.">
+<meta property="og:title" content="The Mempool Galaxy">
+<meta property="og:description" content="Visualize your Farcaster social circle as a blockchain node network.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kinetic-sigma.vercel.app/">
+<meta property="og:image" content="https://kinetic-sigma.vercel.app/assets/hero.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://kinetic-sigma.vercel.app/assets/embed-3x2.png","button":{"title":"Launch The Mempool Galaxy","action":{"type":"launch_frame","name":"The Mempool Galaxy","url":"https://kinetic-sigma.vercel.app/","splashImageUrl":"https://kinetic-sigma.vercel.app/assets/splash.png","splashBackgroundColor":"#0B1020"}}}'>
+<meta name="fc:frame" content='{"version":"1","imageUrl":"https://kinetic-sigma.vercel.app/assets/embed-3x2.png","button":{"title":"Launch The Mempool Galaxy","action":{"type":"launch_frame","name":"The Mempool Galaxy","url":"https://kinetic-sigma.vercel.app/","splashImageUrl":"https://kinetic-sigma.vercel.app/assets/splash.png","splashBackgroundColor":"#0B1020"}}}'>
+
+<style>
+  :root {
+    --bg0: #070A12;
+    --bg1: #0B1020;
+    --etherBlue: #0C1B3A;
+    --glowPurple: #9333EA;
+    --neonCyan: #6EE7FF;
+    --danger: #FF4D4D;
+    --text: #DCE8FF;
+    --muted: rgba(220,232,255,.68);
+    --panel: rgba(10,14,26,.72);
+    --border: rgba(147,51,234,.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--bg0); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+  body { overflow: hidden; }
+  #app {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background:
+      radial-gradient(1200px 800px at 50% 30%, rgba(147,51,234,.08), transparent 55%),
+      radial-gradient(900px 700px at 20% 80%, rgba(110,231,255,.06), transparent 60%),
+      linear-gradient(180deg, var(--bg0), var(--bg1));
+  }
+  canvas { display:block; width:100%; height:100%; }
+  .hud {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .topbar {
+    pointer-events: none;
+    position: absolute;
+    top: env(safe-area-inset-top, 0px);
+    left: 0; right: 0;
+    padding: 14px 14px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand {
+    pointer-events: none;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .badge {
+    pointer-events: none;
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(220,232,255,.88);
+    padding: 8px 10px;
+    border: 1px solid rgba(110,231,255,.25);
+    border-radius: 999px;
+    background: rgba(7,10,18,.35);
+    backdrop-filter: blur(10px);
+  }
+  .status {
+    pointer-events: none;
+    font-size: 12px;
+    color: rgba(220,232,255,.9);
+    padding: 8px 10px;
+    border: 1px solid rgba(147,51,234,.28);
+    border-radius: 999px;
+    background: rgba(7,10,18,.35);
+    backdrop-filter: blur(10px);
+  }
+  .legend {
+    pointer-events: none;
+    position: absolute;
+    left: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(147,51,234,.25);
+    background: rgba(10,14,26,.55);
+    backdrop-filter: blur(10px);
+    max-width: 340px;
+  }
+  .legend h3 {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(220,232,255,.92);
+  }
+  .legend p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+  .hint {
+    display:inline-block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(220,232,255,.82);
+    border-left: 3px solid rgba(110,231,255,.35);
+    padding-left: 10px;
+  }
+  .panel {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(.98);
+    width: min(92vw, 420px);
+    border-radius: 18px;
+    border: 1px solid rgba(147,51,234,.35);
+    background: rgba(10,14,26,.78);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 24px 70px rgba(0,0,0,.55);
+    padding: 14px 14px 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .12s ease, transform .12s ease;
+  }
+  .panel.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .panelHeader {
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .panelTitle {
+    margin: 0;
+    font-size: 14px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(220,232,255,.9);
+  }
+  .closeBtn {
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid rgba(110,231,255,.25);
+    background: rgba(7,10,18,.35);
+    color: rgba(220,232,255,.9);
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  .row {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .kv {
+    border: 1px solid rgba(147,51,234,.22);
+    background: rgba(7,10,18,.35);
+    border-radius: 14px;
+    padding: 10px 12px;
+  }
+  .k {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(110,231,255,.85);
+    margin-bottom: 4px;
+  }
+  .v {
+    font-size: 13px;
+    color: rgba(220,232,255,.92);
+    line-height: 1.35;
+    word-break: break-word;
+  }
+  .toast {
+    position: absolute;
+    left: 50%;
+    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(110,231,255,.25);
+    background: rgba(7,10,18,.55);
+    backdrop-filter: blur(10px);
+    color: rgba(220,232,255,.92);
+    font-size: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .14s ease;
+    max-width: min(92vw, 520px);
+  }
+  .toast.show { opacity: 1; }
+  .tapShield {
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene" aria-label="The Mempool Galaxy visualization"></canvas>
+
+    <div class="hud">
+      <div class="topbar">
+        <div class="brand">
+          <div class="badge">ETHERSCAN VISUALIZER</div>
+          <div id="miniStatus" class="status">SDK: booting…</div>
+        </div>
+        <div class="status" id="fps">— fps</div>
+      </div>
+
+      <div class="legend">
+        <h3>Legend</h3>
+        <p>You are the central node. Friends are satellites. Purple links represent interaction bandwidth (thicker = more).</p>
+        <div class="hint">Drag to rotate • Tap a node to open its block header • Red glow = congested/spammy</div>
+      </div>
+
+      <div id="panel" class="panel" role="dialog" aria-modal="true" aria-label="Block Header">
+        <div class="panelHeader">
+          <h2 class="panelTitle">Block Header</h2>
+          <div id="closePanel" class="closeBtn">Close</div>
+        </div>
+        <div class="row">
+          <div class="kv"><div class="k">Address</div><div class="v" id="phAddress">—</div></div>
+          <div class="kv"><div class="k">Handle</div><div class="v" id="phHandle">—</div></div>
+          <div class="kv"><div class="k">Bio</div><div class="v" id="phBio">—</div></div>
+          <div class="kv"><div class="k">Bandwidth</div><div class="v" id="phBandwidth">—</div></div>
+          <div class="kv"><div class="k">Mempool Status</div><div class="v" id="phStatus">—</div></div>
+        </div>
+      </div>
+
+      <div id="toast" class="toast"></div>
+      <div class="tapShield" id="tapShield"></div>
+    </div>
+
+    <script type="module" src="/script.js"></script>
+  </div>
+</body>
+</html>
