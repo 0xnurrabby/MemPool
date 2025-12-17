@@ -1,0 +1,34 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "The Mempool Galaxy",
+    "homeUrl": "https://mem-pool.vercel.app/",
+    "iconUrl": "https://mem-pool.vercel.app/assets/icon.png",
+    "splashImageUrl": "https://mem-pool.vercel.app/assets/splash.png",
+    "splashBackgroundColor": "#0B1020",
+    "subtitle": "Etherscan-style social graph",
+    "description": "Visualize your Farcaster social circle as a blockchain node network. Rotate the wireframe galaxy, tap nodes to read block headers, and spot congested spammy nodes.",
+    "primaryCategory": "social",
+    "tags": [
+      "social",
+      "farcaster",
+      "graph",
+      "visualizer",
+      "base"
+    ],
+    "heroImageUrl": "https://mem-pool.vercel.app/assets/hero.png",
+    "tagline": "See your social bandwidth",
+    "screenshotUrls": [
+      "https://mem-pool.vercel.app/assets/hero.png"
+    ],
+    "ogTitle": "The Mempool Galaxy",
+    "ogDescription": "Visualize your Farcaster social circle as a blockchain node network.",
+    "ogImageUrl": "https://mem-pool.vercel.app/assets/hero.png",
+    "noindex": false
+  }
+}
